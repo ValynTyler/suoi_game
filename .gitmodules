@@ -1,0 +1,3 @@
+[submodule "suoi_types"]
+	path = suoi_types
+	url = https://github.com/ValynTyler/suoi_types.git
