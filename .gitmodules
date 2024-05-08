@@ -1,3 +1,6 @@
 [submodule "suoi_types"]
 	path = suoi_types
 	url = https://github.com/ValynTyler/suoi_types.git
+[submodule "suoi_simp"]
+	path = suoi_simp
+	url = https://github.com/ValynTyler/suoi_simp.git
