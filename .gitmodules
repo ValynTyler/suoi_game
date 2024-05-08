@@ -4,3 +4,6 @@
 [submodule "suoi_simp"]
 	path = suoi_simp
 	url = https://github.com/ValynTyler/suoi_simp.git
+[submodule "suoi_rwin"]
+	path = suoi_rwin
+	url = https://github.com/ValynTyler/suoi_rwin.git
