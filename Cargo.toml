@@ -4,3 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+suoi_rwin = { path = "suoi_rwin" }
+suoi_simp = { path = "suoi_simp" }
+suoi_types = { path = "suoi_types" }
