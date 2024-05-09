@@ -7,7 +7,7 @@ use suoi_rwin::{
     Screen, ShaderStageType, Time,
 };
 use suoi_simp::{obj::Obj, Resource};
-use suoi_types::{Color, Matrix, Matrix4, Vector3};
+use suoi_types::{Color, Matrix};
 
 const CLEAR_COLOR: Color = Color::rgb(31, 31, 31);
 
@@ -34,9 +34,7 @@ fn main() {
     .unwrap();
 
     let model_path = Path::new("assets/models/stuff.obj");
-    let obj = Obj::import(model_path).expect("IMPORT_ERROR");
-
-    let stuff_model = Model::from(obj);
+    let model = Model::from(Obj::import(model_path).expect("IMPORT_ERROR"));
 
     unsafe { Renderer::init() };
 
@@ -47,17 +45,15 @@ fn main() {
             shader.with(|| {
                 shader.set_uniform("texture1", 1);
 
-                // Transformation Matrices
-                let model = Matrix4::translate(Vector3::fwd() * -5.0);
-                let view = camera.view_matrix();
-                let projection = camera.projection_matrix(&screen);
-
                 // set uniform matrices
-                shader.set_uniform("model", model.transposition());
-                shader.set_uniform("view", view);
-                shader.set_uniform("projection", projection.transposition());
+                shader.set_uniform("model", model.model_matrix().transposition());
+                shader.set_uniform("view", camera.view_matrix());
+                shader.set_uniform(
+                    "projection",
+                    camera.projection_matrix(&screen).transposition(),
+                );
 
-                stuff_model.draw();
+                model.draw();
             });
         }
 
