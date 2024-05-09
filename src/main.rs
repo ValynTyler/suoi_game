@@ -3,8 +3,7 @@ use std::{fs::read_to_string, path::Path};
 use suoi_game::player::Player;
 
 use suoi_rwin::{
-    shader::ShaderStage, Camera, Context, EventHandler, GLFWContext, Model, Mouse, Renderer,
-    Screen, ShaderStageType, Time,
+    shader::ShaderStage, Camera, Context, EventHandler, GLFWContext, GraphicsObject, Model, Mouse, Renderer, Screen, ShaderStageType, Time
 };
 use suoi_simp::{obj::Obj, Resource};
 use suoi_types::{Color, Matrix};
