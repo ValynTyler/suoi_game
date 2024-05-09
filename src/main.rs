@@ -14,9 +14,9 @@ fn main() {
     let mut camera = Camera::default();
     let mut player = Player::default();
 
-    let mut event_handler = EventHandler::default();
     let mut screen = Screen::new(800, 480);
     let mut context = Context::init(&screen);
+    let mut event_handler = EventHandler::default();
 
     let mut time = Time::default();
     let mut mouse = Mouse::default();
