@@ -1,4 +1,4 @@
-# Blender 4.1.1 MTL File: 'models.blend'
+# Blender 4.1.1 MTL File: 'scene.blend'
 # www.blender.org
 
 newmtl Crate
@@ -9,7 +9,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd D:/Dev/Rust/Game Engine/assets/textures/crate.jpg
+map_Kd ../textures/crate.jpg
 
 newmtl Floor
 Ns 0.000000
@@ -19,7 +19,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd D:/Dev/Rust/Game Engine/assets/textures/wall.jpg
+map_Kd ../textures/wall.jpg
 
 newmtl Monke
 Ns 0.000000
@@ -29,7 +29,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd D:/Dev/Rust/Game Engine/assets/textures/monke.png
+map_Kd ../textures/monke.png
 
 newmtl Purpl
 Ns 250.000000
@@ -49,4 +49,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 2
-map_Kd D:/Dev/Rust/Game Engine/assets/textures/soy.jpg
+map_Kd ../textures/soy.jpg

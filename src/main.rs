@@ -22,7 +22,7 @@ fn main() {
     let mut mouse = Mouse::default();
 
     let vert_data = &read_to_string("assets/shaders/normal_map.vert").unwrap();
-    let frag_data = &read_to_string("assets/shaders/normal_map.frag").unwrap();
+    let frag_data = &read_to_string("assets/shaders/basic.frag").unwrap();
 
     let shader = unsafe {
         suoi_rwin::Shader::compile(
@@ -32,7 +32,7 @@ fn main() {
     }
     .unwrap();
 
-    let model_path = Path::new("assets/models/stuff.obj");
+    let model_path = Path::new("assets/models/scene.obj");
     let model = Model::from(Obj::import(model_path).expect("IMPORT_ERROR"));
 
     unsafe { Renderer::init() };
