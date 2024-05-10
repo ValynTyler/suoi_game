@@ -19,6 +19,10 @@ impl Default for Player {
 }
 
 impl Player {
+    pub fn start(&mut self, camera: &mut Camera) {
+        camera.transform.translate(Vector3::up() * 2.0)
+    }
+
     pub fn update(
         &mut self,
         context: &mut Context,
@@ -45,9 +49,11 @@ impl Player {
 
         let speed = 5.0;
 
+        println!("{}", camera.transform.position());
+
         camera
             .transform
-            .translate((fwd * move_axes.y - right * move_axes.x) * speed * delta_time);
+            .translate((-fwd * move_axes.y + right * move_axes.x) * speed * delta_time);
     }
 
     #[rustfmt::skip]
