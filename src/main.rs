@@ -22,7 +22,7 @@ fn main() {
     let mut mouse = Mouse::default();
 
     let vert_data = &read_to_string("assets/shaders/basic.vert").unwrap();
-    let frag_data = &read_to_string("assets/shaders/basic.frag").unwrap();
+    let frag_data = &read_to_string("assets/shaders/normal.frag").unwrap();
 
     let shader = unsafe {
         suoi_rwin::Shader::compile(
