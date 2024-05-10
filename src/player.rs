@@ -49,8 +49,6 @@ impl Player {
 
         let speed = 5.0;
 
-        println!("{}", camera.transform.position());
-
         camera
             .transform
             .translate((-fwd * move_axes.y + right * move_axes.x) * speed * delta_time);
