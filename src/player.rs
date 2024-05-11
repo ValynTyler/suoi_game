@@ -11,7 +11,7 @@ pub struct Player {
 impl Default for Player {
     fn default() -> Self {
         Self {
-            sensitivity: 5.0,
+            sensitivity: 155.0,
             pitch: Default::default(),
             yaw: Default::default(),
         }
@@ -33,8 +33,6 @@ impl Player {
         if Keyboard::get_key(Key::Esc, context).is_pressed() {
             context.close()
         }
-    
-        println!("{}", camera.transform.position());
 
         self.move_self(context, delta_time, camera);
         self.turn_camera(delta_time, mouse, camera);

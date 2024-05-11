@@ -38,13 +38,13 @@ fn main() {
     ));
     board.add_piece(
         ChessPiece::new(Model::from(
-            Obj::import(Path::new("assets/models/knight.obj")).expect("IMPORT_ERROR"),
+            Obj::import(Path::new("assets/models/bishop.obj")).expect("IMPORT_ERROR"),
         )),
         Vector2::new(1.0, 1.0),
     );
     board.add_piece(
         ChessPiece::new(Model::from(
-            Obj::import(Path::new("assets/models/knight.obj")).expect("IMPORT_ERROR"),
+            Obj::import(Path::new("assets/models/bishop.obj")).expect("IMPORT_ERROR"),
         )),
         Vector2::new(4.0, 4.0),
     );
