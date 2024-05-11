@@ -11,7 +11,7 @@ pub struct Player {
 impl Default for Player {
     fn default() -> Self {
         Self {
-            sensitivity: 5.0,
+            sensitivity: 155.0,
             pitch: Default::default(),
             yaw: Default::default(),
         }
@@ -47,7 +47,7 @@ impl Player {
 
         camera
             .transform
-            .translate((fwd * move_axes.y - right * move_axes.x) * speed * delta_time);
+            .translate((-fwd * move_axes.y + right * move_axes.x) * speed * delta_time);
     }
 
     #[rustfmt::skip]
