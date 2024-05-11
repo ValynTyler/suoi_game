@@ -79,7 +79,7 @@ fn main() {
 
         // poll systems
         time.poll(&context);
-        mouse.poll_delta();
+        mouse.poll(&context);
         event_handler.poll_events(&mut context, &mut screen, &mut mouse);
 
         // update

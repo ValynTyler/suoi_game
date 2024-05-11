@@ -1,5 +1,5 @@
 use suoi_rwin::{Camera, Context, Key, Keyboard, Mouse};
-use suoi_types::{Deg, Quaternion, Vector2, Vector3};
+use suoi_types::{Deg, Quaternion, Rad, Vector2, Vector3};
 
 pub struct Player {
     sensitivity: f32,
@@ -20,7 +20,15 @@ impl Default for Player {
 
 impl Player {
     pub fn start(&mut self, camera: &mut Camera) {
-        camera.transform.translate(Vector3::up() * 2.0)
+        camera.transform.translate(Vector3::up() * 5.0 + Vector3::fwd() * -10.0);
+
+        let target = -camera.transform.position();
+        let axis = target.cross(camera.transform.forward());
+        let phi = target.angle(camera.transform.forward());
+        
+        camera.transform.set_rotation(
+            Quaternion::axis_angle(axis, Rad(phi))
+        );
     }
 
     pub fn update(
@@ -30,12 +38,14 @@ impl Player {
         mouse: &Mouse,
         camera: &mut Camera,
     ) {
-        if Keyboard::get_key(Key::Esc, context).is_pressed() {
+        if Keyboard::get_key(Key::Esc, &context).is_pressed() {
             context.close()
         }
 
+        if mouse.left_button().is_pressed() {
+            self.turn_camera(delta_time, mouse, camera);
+        }
         self.move_self(context, delta_time, camera);
-        self.turn_camera(delta_time, mouse, camera);
     }
 
     fn move_self(&mut self, context: &mut Context, delta_time: f32, camera: &mut Camera) {
