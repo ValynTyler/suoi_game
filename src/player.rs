@@ -22,9 +22,11 @@ impl Player {
     pub fn start(&mut self, camera: &mut Camera) {
         camera.transform.translate(Vector3::up() * 5.0 + Vector3::fwd() * -10.0);
 
-        let target = -camera.transform.position();
-        let axis = target.cross(camera.transform.forward());
-        let phi = target.angle(camera.transform.forward());
+        let target = camera.transform.position();
+        let fwd = camera.transform.forward();
+
+        let axis = fwd.cross(target).normalized();
+        let phi = target.angle(fwd);
         
         camera.transform.set_rotation(
             Quaternion::axis_angle(axis, Rad(phi))
