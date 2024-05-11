@@ -1,6 +1,6 @@
 use std::{fs::read_to_string, path::Path};
 
-use suoi_game::{player::Player, Quaternion, Rad, Vector3};
+use suoi_game::{player::Player, Angle, Deg, Quaternion, Rad, Vector, Vector3};
 
 use suoi_rwin::{
     shader::ShaderStage, Camera, Context, EventHandler, GLFWContext, GraphicsObject, Model, Mouse,
@@ -42,19 +42,27 @@ fn main() {
     unsafe { Renderer::init() };
 
     while context.running() {
-        let x_angle = 0.0;
-        let y_angle = monke.transform.forward().angle(Vector3::new(
-            camera.transform.position().x,
-            1.0,
-            camera.transform.position().z,
-        ));
+        
+        let fwd = monke.transform.forward();
 
-        println!("{}", y_angle.to_degrees());
+        let mut dir = camera.transform.position() - monke.transform.position();
+        dir = dir.unit();
 
-        monke.transform.set_rotation(
-            Quaternion::axis_angle(Vector3::up(), Rad(y_angle))
-                * Quaternion::axis_angle(Vector3::right(), Rad(x_angle)),
-        );
+        let axis = fwd.cross(dir);
+        let angle = f32::acos(fwd.dot(dir));
+
+        let q = Quaternion::axis_angle(axis, Rad(angle));
+        println!("{}", q);
+        
+        if angle > f32::to_radians(10.0) {
+            // monke.transform.set_rotation(q * monke.transform.rotation());
+            monke.transform.set_rotation(q);
+        }
+
+
+        //
+        //
+        //
 
         context.window_mut().swap_buffers();
         unsafe {
