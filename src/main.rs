@@ -1,9 +1,10 @@
 use std::{fs::read_to_string, path::Path};
 
-use suoi_game::player::Player;
+use suoi_game::{player::Player, Quaternion, Rad, Vector3};
 
 use suoi_rwin::{
-    shader::ShaderStage, Camera, Context, EventHandler, GLFWContext, GraphicsObject, Model, Mouse, Renderer, Screen, ShaderStageType, Time
+    shader::ShaderStage, Camera, Context, EventHandler, GLFWContext, GraphicsObject, Model, Mouse,
+    Renderer, Screen, ShaderStageType, Time,
 };
 use suoi_simp::{obj::Obj, Resource};
 use suoi_types::{Color, Matrix};
@@ -32,12 +33,29 @@ fn main() {
     }
     .unwrap();
 
-    let model_path = Path::new("assets/models/scene.obj");
-    let model = Model::from(Obj::import(model_path).expect("IMPORT_ERROR"));
+    let model =
+        Model::from(Obj::import(Path::new("assets/models/scene.obj")).expect("IMPORT_ERROR"));
+
+    let mut monke =
+        Model::from(Obj::import(Path::new("assets/models/monke.obj")).expect("IMPORT_ERROR"));
 
     unsafe { Renderer::init() };
 
     while context.running() {
+        let x_angle = 0.0;
+        let y_angle = monke.transform.forward().angle(Vector3::new(
+            camera.transform.position().x,
+            1.0,
+            camera.transform.position().z,
+        ));
+
+        println!("{}", y_angle.to_degrees());
+
+        monke.transform.set_rotation(
+            Quaternion::axis_angle(Vector3::up(), Rad(y_angle))
+                * Quaternion::axis_angle(Vector3::right(), Rad(x_angle)),
+        );
+
         context.window_mut().swap_buffers();
         unsafe {
             Renderer::clear_screen(CLEAR_COLOR);
@@ -45,20 +63,23 @@ fn main() {
                 shader.set_uniform("texture1", 1);
 
                 // set uniform matrices
-                shader.set_uniform("model", model.model_matrix().transposition());
                 shader.set_uniform("view", camera.view_matrix());
                 shader.set_uniform(
                     "projection",
                     camera.projection_matrix(&screen).transposition(),
                 );
 
+                shader.set_uniform("model", model.model_matrix().transposition());
                 model.draw();
+
+                shader.set_uniform("model", monke.model_matrix().transposition());
+                monke.draw();
             });
         }
 
         // poll systems
         time.poll(&context);
-        mouse.poll_delta();
+        mouse.poll(&context);
         event_handler.poll_events(&mut context, &mut screen, &mut mouse);
 
         // update

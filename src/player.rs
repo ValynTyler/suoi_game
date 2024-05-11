@@ -11,7 +11,7 @@ pub struct Player {
 impl Default for Player {
     fn default() -> Self {
         Self {
-            sensitivity: 155.0,
+            sensitivity: 55.0,
             pitch: Default::default(),
             yaw: Default::default(),
         }
@@ -19,6 +19,10 @@ impl Default for Player {
 }
 
 impl Player {
+    pub fn start(&self, _camera: &mut Camera) {
+        
+    }
+
     pub fn update(
         &mut self,
         context: &mut Context,
