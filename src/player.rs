@@ -34,6 +34,8 @@ impl Player {
             context.close()
         }
     
+        println!("{}", camera.transform.position());
+
         self.move_self(context, delta_time, camera);
         self.turn_camera(delta_time, mouse, camera);
     }
