@@ -1,6 +1,6 @@
 use std::{fs::read_to_string, path::Path};
 
-use suoi_game::{player::Player, Matrix4, Vector, Vector3, Vector3};
+use suoi_game::{player::Player, Matrix4, Vector, Vector3};
 
 use suoi_phsh::{r#box::Box, collision_shape::CollisionShape, ray::Ray};
 use suoi_rwin::{
