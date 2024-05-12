@@ -41,21 +41,19 @@ fn main() {
 
     unsafe { Renderer::init() };
 
+    monke.transform.translate(Vector3::fwd() * 3.0);
+
     while context.running() {
 
-        let fwd = monke.transform.forward();
-        let target = Vector3::new(camera.transform.position().x , 0.0, camera.transform.position().z).unit();
+        let fwd = monke.transform.forward().unit();
+        let dir = (camera.transform.position() - monke.transform.position()).unit();
 
-        let y_angle = Rad(fwd.angle(target)).deg();
+        let axis = fwd.cross(dir).unit();
+        let angle = fwd.dot(dir).acos();
 
-        println!("{}", y_angle.0);
-
-        if !y_angle.0.is_nan() {
-            monke.transform.set_rotation(
-                Quaternion::axis_angle(Vector3::up(), y_angle)
-            );
-
-        }
+        monke.transform.set_rotation(
+            Quaternion::axis_angle(axis, Rad(angle))
+        );
 
         //
         //
