@@ -7,7 +7,7 @@ use suoi_rwin::{
     Renderer, Screen, ShaderStageType, Time,
 };
 use suoi_simp::{obj::Obj, Resource};
-use suoi_types::{Color, Matrix, Vector2};
+use suoi_types::{Color, Matrix, Matrix4, Vector2, Vector3};
 
 const CLEAR_COLOR: Color = Color::rgb(31, 31, 31);
 
@@ -61,13 +61,20 @@ fn main() {
                 shader.set_uniform("texture1", 1);
 
                 // set uniform matrices
-                shader.set_uniform("model", board.model.model_matrix().transposition());
-                shader.set_uniform("view", camera.view_matrix());
+                shader.set_uniform(
+                    "view",
+                    Matrix4::look_at_dir(
+                        camera.transform.position(),
+                        -camera.transform.position(),
+                        Vector3::up(),
+                    ),
+                );
                 shader.set_uniform(
                     "projection",
                     camera.projection_matrix(&screen).transposition(),
                 );
-
+                
+                shader.set_uniform("model", board.model.model_matrix().transposition());
                 board.model.draw();
 
                 for piece in board.pieces() {
