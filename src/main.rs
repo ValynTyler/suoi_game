@@ -1,15 +1,15 @@
 use std::{fs::read_to_string, path::Path};
 
-use suoi_game::{chess_board::ChessBoard, {player::Player}, Matrix4, Vector, Vector3};
+use suoi_game::{chess_board::ChessBoard, player::Player};
 
 use suoi_phsh::{r#box::Box, collision_shape::CollisionShape, ray::Ray};
 use suoi_rwin::{
     shader::ShaderStage, Camera, ClippingPlanes, Context, EventHandler, GLFWContext,
     GraphicsObject, Model, Mouse,
-    Projection, Renderer, Screen, ShaderStageType, Time,,
+    Projection, Renderer, Screen, ShaderStageType, Time,
 };
 use suoi_simp::{obj::Obj, Resource};
-use suoi_types::{Color, Matrix, Matrix4, Vector3};
+use suoi_types::*;
 
 const CLEAR_COLOR: Color = Color::rgb(31, 31, 31);
 
