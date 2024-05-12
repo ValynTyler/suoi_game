@@ -55,6 +55,12 @@ fn main() {
         //
         //
 
+        let view_matrix = Matrix4::look_at_dir(
+            camera.transform.position(),
+            -camera.transform.position(),
+            Vector3::up(),
+        );
+
         context.window_mut().swap_buffers();
         unsafe {
             Renderer::clear_screen(CLEAR_COLOR);
@@ -64,22 +70,18 @@ fn main() {
                 // set uniform matrices
                 shader.set_uniform(
                     "view",
-                    Matrix4::look_at_dir(
-                        camera.transform.position(),
-                        -camera.transform.position(),
-                        Vector3::up(),
-                    ),
+                    &view_matrix,
                 );
                 // shader.set_uniform("view", camera.view_matrix());
                 shader.set_uniform(
                     "projection",
-                    camera.projection_matrix(&screen).transposition(),
+                    &camera.projection_matrix(&screen).transposition(),
                 );
 
-                shader.set_uniform("model", Matrix4::identity());
+                shader.set_uniform("model", &Matrix4::identity());
                 model.draw();
 
-                shader.set_uniform("model", monke_matrix.transposition());
+                shader.set_uniform("model", &monke_matrix.transposition());
                 monke.draw();
             });
         }
