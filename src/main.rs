@@ -1,6 +1,6 @@
 use std::{fs::read_to_string, path::Path};
 
-use suoi_game::{player::Player, Matrix4};
+use suoi_game::{player::Player, Matrix4, Vector3};
 
 use suoi_rwin::{
     shader::ShaderStage, Camera, ClippingPlanes, Context, EventHandler, GLFWContext,
@@ -47,13 +47,14 @@ fn main() {
         height: screen.height(),
     };
 
-    let ui_cam = Camera::new(
+    let mut ui_cam = Camera::new(
         Projection::new(
             suoi_rwin::ProjectionType::Ortho(canvas.width, canvas.height),
             ClippingPlanes::new(0.001, 1000.0),
         ),
         Default::default(),
     );
+    ui_cam.transform.translate(Vector3::fwd() * 1.0);
 
     let ui_vert = &read_to_string("assets/shaders/unlit2d.vert").unwrap();
     let ui_frag = &read_to_string("assets/shaders/unlit2d.frag").unwrap();
@@ -65,6 +66,8 @@ fn main() {
         )
     }
     .unwrap();
+
+    let quad = Model::from(Obj::import(Path::new("assets/models/quad.obj")).expect("IMPORT_ERROR"));
 
     unsafe { Renderer::init() };
 
@@ -91,14 +94,14 @@ fn main() {
                 ui_shader.set_uniform("texture1", 1);
 
                 // set uniform matrices
-                ui_shader.set_uniform("view", camera.view_matrix());
+                ui_shader.set_uniform("view", ui_cam.view_matrix());
                 ui_shader.set_uniform(
                     "projection",
                     ui_cam.projection_matrix(&screen).transposition(),
                 );
 
-                ui_shader.set_uniform("model", Matrix4::identity());
-                model.draw();
+                ui_shader.set_uniform("model", Matrix4::uniform_scale(5.0));
+                quad.draw();
             });
         }
 
