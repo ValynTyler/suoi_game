@@ -7,3 +7,6 @@
 [submodule "suoi_rwin"]
 	path = suoi_rwin
 	url = https://github.com/ValynTyler/suoi_rwin.git
+[submodule "suoi_phsh"]
+	path = suoi_phsh
+	url = https://github.com/ValynTyler/suoi_phsh.git
