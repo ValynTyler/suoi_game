@@ -42,23 +42,20 @@ fn main() {
     unsafe { Renderer::init() };
 
     while context.running() {
-        
+
         let fwd = monke.transform.forward();
+        let target = Vector3::new(camera.transform.position().x , 0.0, camera.transform.position().z).unit();
 
-        let mut dir = camera.transform.position() - monke.transform.position();
-        dir = dir.unit();
+        let y_angle = Rad(fwd.angle(target)).deg();
 
-        let axis = fwd.cross(dir);
-        let angle = f32::acos(fwd.dot(dir));
+        println!("{}", y_angle.0);
 
-        let q = Quaternion::axis_angle(axis, Rad(angle));
-        println!("{}", q);
-        
-        if angle > f32::to_radians(10.0) {
-            // monke.transform.set_rotation(q * monke.transform.rotation());
-            monke.transform.set_rotation(q);
+        if !y_angle.0.is_nan() {
+            monke.transform.set_rotation(
+                Quaternion::axis_angle(Vector3::up(), y_angle)
+            );
+
         }
-
 
         //
         //
