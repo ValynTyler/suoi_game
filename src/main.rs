@@ -1,7 +1,8 @@
 use std::{fs::read_to_string, path::Path};
 
-use suoi_game::{player::Player, Matrix4};
+use suoi_game::{player::Player, Matrix4, Vector3};
 
+use suoi_phsh::{collision_shape::CollisionShape, plane::Plane, ray::Ray};
 use suoi_rwin::{
     shader::ShaderStage, Camera, Context, EventHandler, GLFWContext, GraphicsObject, Model, Mouse, Renderer, Screen, ShaderStageType, Time
 };
@@ -37,6 +38,10 @@ fn main() {
 
     unsafe { Renderer::init() };
 
+    
+    let plane = Plane::point_normal(Vector3::up() * -5.0, Vector3::up());
+
+
     while context.running() {
         context.window_mut().swap_buffers();
         unsafe {
@@ -55,6 +60,9 @@ fn main() {
                 model.draw();
             });
         }
+
+        let ray = Ray::point_dir(camera.transform.position(), -camera.transform.forward());
+        println!("{:?}", plane.raycast(&ray));
 
         // poll systems
         time.poll(&context);
