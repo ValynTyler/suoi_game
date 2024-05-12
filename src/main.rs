@@ -1,6 +1,6 @@
 use std::{fs::read_to_string, path::Path};
 
-use suoi_game::player::Player;
+use suoi_game::{player::Player, Matrix4};
 
 use suoi_rwin::{
     shader::ShaderStage, Camera, Context, EventHandler, GLFWContext, GraphicsObject, Model, Mouse, Renderer, Screen, ShaderStageType, Time
@@ -45,7 +45,7 @@ fn main() {
                 shader.set_uniform("texture1", 1);
 
                 // set uniform matrices
-                shader.set_uniform("model", model.model_matrix().transposition());
+                shader.set_uniform("model", Matrix4::identity());
                 shader.set_uniform("view", camera.view_matrix());
                 shader.set_uniform(
                     "projection",
@@ -58,7 +58,7 @@ fn main() {
 
         // poll systems
         time.poll(&context);
-        mouse.poll_delta();
+        mouse.poll(&context);
         event_handler.poll_events(&mut context, &mut screen, &mut mouse);
 
         // update
