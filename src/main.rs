@@ -1,6 +1,6 @@
 use std::{fs::read_to_string, path::Path};
 
-use suoi_game::{player::Player, Angle, Deg, Quaternion, Rad, Vector, Vector3};
+use suoi_game::{player::Player, Matrix4, Vector, Vector3};
 
 use suoi_rwin::{
     shader::ShaderStage, Camera, Context, EventHandler, GLFWContext, GraphicsObject, Model, Mouse,
@@ -36,24 +36,18 @@ fn main() {
     let model =
         Model::from(Obj::import(Path::new("assets/models/scene.obj")).expect("IMPORT_ERROR"));
 
-    let mut monke =
+    let monke =
         Model::from(Obj::import(Path::new("assets/models/monke.obj")).expect("IMPORT_ERROR"));
 
     unsafe { Renderer::init() };
 
-    monke.transform.translate(Vector3::fwd() * 3.0);
-
     while context.running() {
+        //
+        //
+        //
 
-        let fwd = monke.transform.forward().unit();
-        let dir = (camera.transform.position() - monke.transform.position()).unit();
-
-        let axis = fwd.cross(dir).unit();
-        let angle = fwd.dot(dir).acos();
-
-        monke.transform.set_rotation(
-            Quaternion::axis_angle(axis, Rad(angle))
-        );
+        let monke_matrix =
+            Matrix4::look_at_dir(Vector3::zero(), -camera.transform.position(), Vector3::up());
 
         //
         //
@@ -75,7 +69,7 @@ fn main() {
                 shader.set_uniform("model", model.model_matrix().transposition());
                 model.draw();
 
-                shader.set_uniform("model", monke.model_matrix().transposition());
+                shader.set_uniform("model", monke_matrix.transposition());
                 monke.draw();
             });
         }
