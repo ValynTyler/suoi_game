@@ -1,5 +1,5 @@
 use suoi_rwin::{Camera, Context, Key, Keyboard, Mouse};
-use suoi_types::{Deg, Quaternion, Vector2, Vector3};
+use suoi_types::Vector3;
 
 pub struct Player {
     sensitivity: f32,

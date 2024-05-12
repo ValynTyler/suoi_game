@@ -76,7 +76,7 @@ fn main() {
                     camera.projection_matrix(&screen).transposition(),
                 );
 
-                shader.set_uniform("model", model.model_matrix().transposition());
+                shader.set_uniform("model", Matrix4::identity());
                 model.draw();
 
                 shader.set_uniform("model", monke_matrix.transposition());
