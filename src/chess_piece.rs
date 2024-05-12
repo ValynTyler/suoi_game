@@ -1,13 +1,16 @@
 use suoi_rwin::Model;
+use suoi_types::Transform;
 
-pub struct ChessPiece {
-    pub model: Model,
+pub struct ChessPiece<'a> {
+    pub transform: Transform,
+    pub model: &'a Model,
 }
 
-impl ChessPiece {
-    pub fn new(model: Model) -> Self {
+impl<'a> ChessPiece<'a> {
+    pub fn new(model: &'a Model) -> Self {
         Self {
             model,
+            transform: Default::default(),
         }
     }
 }

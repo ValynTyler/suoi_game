@@ -1,13 +1,13 @@
 use std::{fs::read_to_string, path::Path};
 
-use suoi_game::{chess_board::ChessBoard, chess_piece::ChessPiece, player::Player};
+use suoi_game::{chess_board::ChessBoard, player::Player};
 
 use suoi_rwin::{
     shader::ShaderStage, Camera, Context, EventHandler, GLFWContext, GraphicsObject, Model, Mouse,
     Renderer, Screen, ShaderStageType, Time,
 };
 use suoi_simp::{obj::Obj, Resource};
-use suoi_types::{Color, Matrix, Matrix4, Vector2, Vector3};
+use suoi_types::{Color, Matrix, Matrix4, Vector3};
 
 const CLEAR_COLOR: Color = Color::rgb(31, 31, 31);
 
@@ -23,7 +23,7 @@ fn main() {
     let mut mouse = Mouse::default();
 
     let vert_data = &read_to_string("assets/shaders/basic.vert").unwrap();
-    let frag_data = &read_to_string("assets/shaders/basic.frag").unwrap();
+    let frag_data = &read_to_string("assets/shaders/normal.frag").unwrap();
 
     let shader = unsafe {
         suoi_rwin::Shader::compile(
@@ -33,22 +33,18 @@ fn main() {
     }
     .unwrap();
 
-    let mut board = ChessBoard::new(Model::from(
-        Obj::import(Path::new("assets/models/board.obj")).expect("IMPORT_ERROR"),
-    ));
-    board.add_piece(
-        ChessPiece::new(Model::from(
-            Obj::import(Path::new("assets/models/bishop.obj")).expect("IMPORT_ERROR"),
-        )),
-        Vector2::new(1.0, 1.0),
-    );
-    board.add_piece(
-        ChessPiece::new(Model::from(
-            Obj::import(Path::new("assets/models/bishop.obj")).expect("IMPORT_ERROR"),
-        )),
-        Vector2::new(4.0, 4.0),
-    );
+    let models = vec![
+        Model::from(Obj::import(Path::new("assets/models/board.obj")).expect("IMPORT_ERROR")),
+        Model::from(Obj::import(Path::new("assets/models/pawn.obj")).expect("IMPORT_ERROR")),
+        Model::from(Obj::import(Path::new("assets/models/knight.obj")).expect("IMPORT_ERROR")),
+        Model::from(Obj::import(Path::new("assets/models/bishop.obj")).expect("IMPORT_ERROR")),
+        Model::from(Obj::import(Path::new("assets/models/rook.obj")).expect("IMPORT_ERROR")),
+        Model::from(Obj::import(Path::new("assets/models/queen.obj")).expect("IMPORT_ERROR")),
+        Model::from(Obj::import(Path::new("assets/models/king.obj")).expect("IMPORT_ERROR")),
+    ];
 
+    let mut board = ChessBoard::new(&models[0]);
+    board.start(&models);
     player.start(&mut camera);
 
     unsafe { Renderer::init() };
@@ -73,12 +69,12 @@ fn main() {
                     "projection",
                     camera.projection_matrix(&screen).transposition(),
                 );
-                
-                shader.set_uniform("model", board.model.model_matrix().transposition());
+
+                shader.set_uniform("model", board.transform.mat().transposition());
                 board.model.draw();
 
                 for piece in board.pieces() {
-                    shader.set_uniform("model", piece.model.model_matrix().transposition());
+                    shader.set_uniform("model", piece.transform.mat().transposition());
                     piece.model.draw();
                 }
             });
@@ -90,6 +86,6 @@ fn main() {
         event_handler.poll_events(&mut context, &mut screen, &mut mouse);
 
         // update
-        player.update(&mut context, time.delta(), &mouse, &mut camera);
+        player.update(&mut context, time.delta(), &mut mouse, &mut camera);
     }
 }
