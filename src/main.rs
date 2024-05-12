@@ -33,17 +33,21 @@ fn main() {
     }
     .unwrap();
 
-    let models = vec![
-        Model::from(Obj::import(Path::new("assets/models/board.obj")).expect("IMPORT_ERROR")),
-        Model::from(Obj::import(Path::new("assets/models/pawn.obj")).expect("IMPORT_ERROR")),
-        Model::from(Obj::import(Path::new("assets/models/knight.obj")).expect("IMPORT_ERROR")),
-        Model::from(Obj::import(Path::new("assets/models/bishop.obj")).expect("IMPORT_ERROR")),
-        Model::from(Obj::import(Path::new("assets/models/rook.obj")).expect("IMPORT_ERROR")),
-        Model::from(Obj::import(Path::new("assets/models/queen.obj")).expect("IMPORT_ERROR")),
-        Model::from(Obj::import(Path::new("assets/models/king.obj")).expect("IMPORT_ERROR")),
-    ];
+    fn models() -> Result<Vec<Model>, suoi_simp::ImportError> {
+        Ok(vec![
+            Model::from(Obj::import(Path::new("assets/models/board.obj"))?),
+            Model::from(Obj::import(Path::new("assets/models/pawn.obj"))?),
+            Model::from(Obj::import(Path::new("assets/models/knight.obj"))?),
+            Model::from(Obj::import(Path::new("assets/models/bishop.obj"))?),
+            Model::from(Obj::import(Path::new("assets/models/rook.obj"))?),
+            Model::from(Obj::import(Path::new("assets/models/queen.obj"))?),
+            Model::from(Obj::import(Path::new("assets/models/king.obj"))?),
+        ])
+    }
+    let models = models().expect("IMPORT_ERROR");
 
     let mut board = ChessBoard::new(&models[0]);
+    
     board.start(&models);
     player.start(&mut camera);
 
