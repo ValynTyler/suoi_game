@@ -1,5 +1,5 @@
 use suoi_rwin::{Camera, Context, Key, Keyboard, Mouse};
-use suoi_types::Vector3;
+use suoi_types::{Quaternion, Rad, Vector3};
 
 pub struct Player {
     sensitivity: f32,
@@ -51,22 +51,12 @@ impl Player {
             self.pitch = -89.0;
         }
 
-        let x_dist =
-            f32::sin((self.yaw).to_radians());
-            
-        let y_dist =
-            f32::cos((self.pitch + 90.0).to_radians());
-            
-        let z_dist =
-            f32::cos((self.yaw).to_radians());
-            // f32::sin((self.pitch + 90.0).to_radians());
+        let pos = Vector3::fwd().rotate(
+            Quaternion::axis_angle(Vector3::up(), Rad(self.yaw * 0.01))
+        );
 
-        camera.transform.set_position((
-                // Vector3::up() * y_dist +
-                Vector3::fwd() * z_dist +
-                Vector3::right() * x_dist +
-                Vector3::up() * 0.5
-            ) * 10.0
+        camera.transform.set_position(
+            pos * 10.0 + Vector3::up() * 4.0
         );
     }
 }
