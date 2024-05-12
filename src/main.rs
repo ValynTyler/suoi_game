@@ -41,6 +41,8 @@ fn main() {
 
     unsafe { Renderer::init() };
 
+    player.start(&mut camera);
+
     while context.running() {
         //
         //
@@ -60,7 +62,15 @@ fn main() {
                 shader.set_uniform("texture1", 1);
 
                 // set uniform matrices
-                shader.set_uniform("view", camera.view_matrix());
+                shader.set_uniform(
+                    "view",
+                    Matrix4::look_at_dir(
+                        camera.transform.position(),
+                        -camera.transform.position(),
+                        Vector3::up(),
+                    ),
+                );
+                // shader.set_uniform("view", camera.view_matrix());
                 shader.set_uniform(
                     "projection",
                     camera.projection_matrix(&screen).transposition(),

@@ -19,8 +19,10 @@ impl Default for Player {
 }
 
 impl Player {
-    pub fn start(&self, _camera: &mut Camera) {
-        
+    pub fn start(&self, camera: &mut Camera) {
+        camera
+            .transform
+            .translate(Vector3::fwd() * -10. + Vector3::up() * 3.);
     }
 
     pub fn update(
@@ -33,25 +35,8 @@ impl Player {
         if Keyboard::get_key(Key::Esc, context).is_pressed() {
             context.close()
         }
-    
-        self.move_self(context, delta_time, camera);
+
         self.turn_camera(delta_time, mouse, camera);
-    }
-
-    fn move_self(&mut self, context: &mut Context, delta_time: f32, camera: &mut Camera) {
-        let move_axes = Vector2 {
-            x: Keyboard::input_axis(&context, Key::A, Key::D),
-            y: Keyboard::input_axis(&context, Key::S, Key::W),
-        };
-
-        let fwd = camera.transform.forward();
-        let right = camera.transform.right();
-
-        let speed = 5.0;
-
-        camera
-            .transform
-            .translate((-fwd * move_axes.y + right * move_axes.x) * speed * delta_time);
     }
 
     #[rustfmt::skip]
@@ -66,9 +51,22 @@ impl Player {
             self.pitch = -89.0;
         }
 
-        camera.transform.set_rotation(
-            Quaternion::axis_angle(Vector3::up(), Deg(self.yaw)) *
-            Quaternion::axis_angle(Vector3::right(), Deg(self.pitch)),
+        let x_dist =
+            f32::sin((self.yaw).to_radians());
+            
+        let y_dist =
+            f32::cos((self.pitch + 90.0).to_radians());
+            
+        let z_dist =
+            f32::cos((self.yaw).to_radians());
+            // f32::sin((self.pitch + 90.0).to_radians());
+
+        camera.transform.set_position((
+                // Vector3::up() * y_dist +
+                Vector3::fwd() * z_dist +
+                Vector3::right() * x_dist +
+                Vector3::up() * 0.5
+            ) * 10.0
         );
     }
 }
