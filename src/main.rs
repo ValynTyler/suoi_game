@@ -2,11 +2,10 @@ use std::{fs::read_to_string, path::Path};
 
 use suoi_game::{chess_board::ChessBoard, player::Player};
 
-use suoi_phsh::{r#box::Box, collision_shape::CollisionShape, ray::Ray};
+use suoi_phsh::{collision_shape::CollisionShape, r#box::Box, ray::Ray};
 use suoi_rwin::{
     shader::ShaderStage, Camera, ClippingPlanes, Context, EventHandler, GLFWContext,
-    GraphicsObject, Model, Mouse,
-    Projection, Renderer, Screen, ShaderStageType, Time,
+    GraphicsObject, Model, Mouse, Projection, Renderer, Screen, ShaderStageType, Time,
 };
 use suoi_simp::{obj::Obj, Resource};
 use suoi_types::*;
@@ -54,7 +53,7 @@ fn main() {
     let models = models().expect("IMPORT_ERROR");
 
     let mut board = ChessBoard::new(&models[0]);
-    
+
     board.start(&models);
     player.start(&mut camera);
 
@@ -95,30 +94,30 @@ fn main() {
 
     while context.running() {
         context.window_mut().swap_buffers();
+
+        let view_matrix = Matrix4::look_at_dir(
+            camera.transform.position(),
+            -camera.transform.position(),
+            Vector3::up(),
+        );
+
         unsafe {
             Renderer::clear_screen(CLEAR_COLOR);
             shader.with(|| {
                 shader.set_uniform("texture1", 1);
 
                 // set uniform matrices
-                shader.set_uniform(
-                    "view",
-                    Matrix4::look_at_dir(
-                        camera.transform.position(),
-                        -camera.transform.position(),
-                        Vector3::up(),
-                    ),
-                );
+                shader.set_uniform("view", &view_matrix);
                 shader.set_uniform(
                     "projection",
-                    camera.projection_matrix(&screen).transposition(),
+                    &camera.projection_matrix(&screen).transposition(),
                 );
 
-                shader.set_uniform("model", board.transform.mat().transposition());
+                shader.set_uniform("model", &board.transform.mat().transposition());
                 board.model.draw();
 
                 for piece in board.pieces() {
-                    shader.set_uniform("model", piece.transform.mat().transposition());
+                    shader.set_uniform("model", &piece.transform.mat().transposition());
                     piece.model.draw();
                 }
             });
@@ -128,18 +127,23 @@ fn main() {
                 ui_shader.set_uniform("texture1", 1);
 
                 // set uniform matrices
-                ui_shader.set_uniform("view", ui_cam.view_matrix());
+                ui_shader.set_uniform("view", &ui_cam.view_matrix());
                 ui_shader.set_uniform(
                     "projection",
-                    ui_cam.projection_matrix(&screen).transposition(),
+                    &ui_cam.projection_matrix(&screen).transposition(),
                 );
 
-                ui_shader.set_uniform("model", Matrix4::uniform_scale(5.0));
+                ui_shader.set_uniform("model", &Matrix4::uniform_scale(5.0));
                 quad.draw();
             });
         }
 
-        let ray = Ray::point_dir(camera.transform.position(), -camera.transform.forward());
+        let fwd = Vector3 {
+            x: view_matrix.get(0, 2).unwrap(),
+            y: view_matrix.get(1, 2).unwrap(),
+            z: view_matrix.get(2, 2).unwrap(),
+        };
+        let ray = Ray::point_dir(camera.transform.position(), -fwd);
         println!("{:?}", cube.raycast(&ray));
 
         // poll systems
