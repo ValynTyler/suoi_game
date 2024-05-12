@@ -3,12 +3,18 @@ use std::{fs::read_to_string, path::Path};
 use suoi_game::{player::Player, Matrix4};
 
 use suoi_rwin::{
-    shader::ShaderStage, Camera, Context, EventHandler, GLFWContext, GraphicsObject, Model, Mouse, Renderer, Screen, ShaderStageType, Time
+    shader::ShaderStage, Camera, ClippingPlanes, Context, EventHandler, GLFWContext,
+    GraphicsObject, Model, Mouse, Projection, Renderer, Screen, ShaderStageType, Time,
 };
 use suoi_simp::{obj::Obj, Resource};
 use suoi_types::{Color, Matrix};
 
 const CLEAR_COLOR: Color = Color::rgb(31, 31, 31);
+
+struct UICanvas {
+    width: u32,
+    height: u32,
+}
 
 fn main() {
     let mut camera = Camera::default();
@@ -35,6 +41,31 @@ fn main() {
     let model_path = Path::new("assets/models/scene.obj");
     let model = Model::from(Obj::import(model_path).expect("IMPORT_ERROR"));
 
+    // UI
+    let canvas = UICanvas {
+        width: screen.width(),
+        height: screen.height(),
+    };
+
+    let ui_cam = Camera::new(
+        Projection::new(
+            suoi_rwin::ProjectionType::Ortho(canvas.width, canvas.height),
+            ClippingPlanes::new(0.001, 1000.0),
+        ),
+        Default::default(),
+    );
+
+    let ui_vert = &read_to_string("assets/shaders/unlit2d.vert").unwrap();
+    let ui_frag = &read_to_string("assets/shaders/unlit2d.frag").unwrap();
+
+    let ui_shader = unsafe {
+        suoi_rwin::Shader::compile(
+            ShaderStage::compile(ui_vert, ShaderStageType::Vertex).unwrap(),
+            ShaderStage::compile(ui_frag, ShaderStageType::Fragment).unwrap(),
+        )
+    }
+    .unwrap();
+
     unsafe { Renderer::init() };
 
     while context.running() {
@@ -45,13 +76,28 @@ fn main() {
                 shader.set_uniform("texture1", 1);
 
                 // set uniform matrices
-                shader.set_uniform("model", Matrix4::identity());
                 shader.set_uniform("view", camera.view_matrix());
                 shader.set_uniform(
                     "projection",
                     camera.projection_matrix(&screen).transposition(),
                 );
 
+                shader.set_uniform("model", Matrix4::identity());
+                model.draw();
+            });
+
+            // UI
+            ui_shader.with(|| {
+                ui_shader.set_uniform("texture1", 1);
+
+                // set uniform matrices
+                ui_shader.set_uniform("view", camera.view_matrix());
+                ui_shader.set_uniform(
+                    "projection",
+                    ui_cam.projection_matrix(&screen).transposition(),
+                );
+
+                ui_shader.set_uniform("model", Matrix4::identity());
                 model.draw();
             });
         }
