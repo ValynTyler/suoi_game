@@ -73,7 +73,7 @@ fn main() {
         Model::from(Obj::import(Path::new("assets/models/cube.obj")).expect("IMPORT_ERROR"));
 
     let cube = BoundingBox {
-        position: Vector3::new(2.0, -0.0, -5.0),
+        position: Vector3::new(-2.0, -0.0, -5.0),
         size: Vector3::one(),
     };
 
@@ -122,7 +122,9 @@ fn main() {
 
         let ray = screen_cast(&mouse, &screen, &camera);
         println!("{:?}", ray.cast(vec![&cube, &cube2]));
+
         if mouse.left_button().just_pressed() {
+            //
         }
 
         // poll systems
@@ -140,7 +142,7 @@ fn screen_cast(mouse: &Mouse, screen: &Screen, camera: &Camera) -> Ray {
         x: mouse.ndc(screen).x,
         y: mouse.ndc(screen).y,
         z: -1.0,
-    };
+    }.unit();
     let v = &camera.inverse_projection_matrix(&screen) * v;
 
     // println!("{:.2}", v);
