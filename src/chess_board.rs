@@ -1,73 +1,66 @@
-use suoi_rwin::Model;
-use suoi_types::{Transform, Vector2, Vector3};
-
-use crate::chess_piece::ChessPiece;
-
-pub struct ChessBoard<'a> {
-    pub transform: Transform, 
-    pub model: &'a Model,
-    pieces: Vec<ChessPiece<'a>>,
+pub enum Piece {
+    Empty,
+    Pawn,
+    Knight,
+    Bishop,
+    Rook,
+    Queen,
+    King,
 }
 
-impl<'a> ChessBoard<'a> {
-    pub fn new(model: &'a Model) -> Self {
+impl Into<u8> for Piece {
+    fn into(self) -> u8 {
+        match self {
+            Piece::Empty    => 0,
+            Piece::Pawn     => 1,
+            Piece::Knight   => 2,
+            Piece::Bishop   => 3,
+            Piece::Rook     => 4,
+            Piece::Queen    => 5,
+            Piece::King     => 6,
+        }
+    }
+}
+
+impl Into<Piece> for u8 {
+    fn into(self) -> Piece {
+        match self {
+            1 => Piece::Pawn,
+            2 => Piece::Knight,
+            3 => Piece::Bishop,
+            4 => Piece::Rook,
+            5 => Piece::Queen,
+            6 => Piece::King,
+            _ => Piece::Empty,
+        }
+    }
+}
+
+pub struct ChessBoard {
+    board: [[u8; 8]; 8],
+}
+
+impl ChessBoard {
+    pub fn new() -> Self {
         Self {
-            transform: Transform::default(),
-            model,
-            pieces: vec![],
+            board: [
+                [4, 2, 3, 5, 6, 3, 2, 4],
+                [1, 1, 1, 1, 1, 1, 1, 1],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 1, 1, 1, 1, 1, 1, 1],
+                [4, 2, 3, 5, 6, 3, 2, 4],
+            ]
         }
     }
 
-    pub fn add_piece(&mut self, mut piece: ChessPiece<'a>, position: Vector2) {
-        piece
-            .transform
-            .translate(Vector3::new(-5.0 + position.x, 0.0, -4.0 + position.y));
-        self.pieces.push(piece);
+    pub fn get(&self, i: usize, j: usize) -> Piece {
+        self.board[i][j].into()
     }
 
-    pub fn pieces(&self) -> &[ChessPiece] {
-        &self.pieces
-    }
-
-    pub fn start(&mut self, models: &'a Vec<Model>) {
-        
-    // WHITE
-    // pieces
-    self.add_piece(ChessPiece::new(&models[4]), Vector2::new(1.0, 1.0));
-    self.add_piece(ChessPiece::new(&models[2]), Vector2::new(1.0, 2.0));
-    self.add_piece(ChessPiece::new(&models[3]), Vector2::new(1.0, 3.0));
-    self.add_piece(ChessPiece::new(&models[5]), Vector2::new(1.0, 4.0));
-    self.add_piece(ChessPiece::new(&models[6]), Vector2::new(1.0, 5.0));
-    self.add_piece(ChessPiece::new(&models[3]), Vector2::new(1.0, 6.0));
-    self.add_piece(ChessPiece::new(&models[2]), Vector2::new(1.0, 7.0));
-    self.add_piece(ChessPiece::new(&models[4]), Vector2::new(1.0, 8.0));
-    // pawns
-    self.add_piece(ChessPiece::new(&models[1]), Vector2::new(2.0, 1.0));
-    self.add_piece(ChessPiece::new(&models[1]), Vector2::new(2.0, 2.0));
-    self.add_piece(ChessPiece::new(&models[1]), Vector2::new(2.0, 3.0));
-    self.add_piece(ChessPiece::new(&models[1]), Vector2::new(2.0, 4.0));
-    self.add_piece(ChessPiece::new(&models[1]), Vector2::new(2.0, 5.0));
-    self.add_piece(ChessPiece::new(&models[1]), Vector2::new(2.0, 6.0));
-    self.add_piece(ChessPiece::new(&models[1]), Vector2::new(2.0, 7.0));
-    self.add_piece(ChessPiece::new(&models[1]), Vector2::new(2.0, 8.0));
-    // BLACK
-    // pieces
-    self.add_piece(ChessPiece::new(&models[4]), Vector2::new(8.0, 1.0));
-    self.add_piece(ChessPiece::new(&models[2]), Vector2::new(8.0, 2.0));
-    self.add_piece(ChessPiece::new(&models[3]), Vector2::new(8.0, 3.0));
-    self.add_piece(ChessPiece::new(&models[5]), Vector2::new(8.0, 4.0));
-    self.add_piece(ChessPiece::new(&models[6]), Vector2::new(8.0, 5.0));
-    self.add_piece(ChessPiece::new(&models[3]), Vector2::new(8.0, 6.0));
-    self.add_piece(ChessPiece::new(&models[2]), Vector2::new(8.0, 7.0));
-    self.add_piece(ChessPiece::new(&models[4]), Vector2::new(8.0, 8.0));
-    // pawns
-    self.add_piece(ChessPiece::new(&models[1]), Vector2::new(7.0, 1.0));
-    self.add_piece(ChessPiece::new(&models[1]), Vector2::new(7.0, 2.0));
-    self.add_piece(ChessPiece::new(&models[1]), Vector2::new(7.0, 3.0));
-    self.add_piece(ChessPiece::new(&models[1]), Vector2::new(7.0, 4.0));
-    self.add_piece(ChessPiece::new(&models[1]), Vector2::new(7.0, 5.0));
-    self.add_piece(ChessPiece::new(&models[1]), Vector2::new(7.0, 6.0));
-    self.add_piece(ChessPiece::new(&models[1]), Vector2::new(7.0, 7.0));
-    self.add_piece(ChessPiece::new(&models[1]), Vector2::new(7.0, 8.0));
+    pub fn set(&mut self, i: usize, j: usize, value: Piece) {
+        self.board[i][j] = value.into();
     }
 }

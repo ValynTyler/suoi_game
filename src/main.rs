@@ -1,21 +1,21 @@
 use std::{fs::read_to_string, path::Path};
 
-use suoi_game::{chess_board::ChessBoard, player::Player};
+use suoi_game::{
+    chess_board::{ChessBoard, Piece},
+    player::Player,
+};
 
-use suoi_phsh::{r#box::Box, collision_shape::CollisionShape, ray::Ray};
+use suoi_phsh::ray::Raycast;
+#[allow(unused_imports)]
+use suoi_phsh::{collision_shape::CollisionShape, r#box::Box, ray::Ray};
 use suoi_rwin::{
-    shader::ShaderStage, Camera, ClippingPlanes, Context, EventHandler, GLFWContext,
-    GraphicsObject, Model, Mouse, Projection, Renderer, Screen, ShaderStageType, Time,
+    shader::ShaderStage, Camera, Context, EventHandler, GLFWContext, GraphicsObject, Model, Mouse,
+    Renderer, Screen, ShaderStageType, Time,
 };
 use suoi_simp::{obj::Obj, Resource};
 use suoi_types::*;
 
 const CLEAR_COLOR: Color = Color::rgb(31, 31, 31);
-
-struct UICanvas {
-    width: u32,
-    height: u32,
-}
 
 fn main() {
     let mut camera = Camera::default();
@@ -52,18 +52,21 @@ fn main() {
     }
     let models = models().expect("IMPORT_ERROR");
 
-    let mut board = ChessBoard::new(&models[0]);
     let cube_model = Model::from(Obj::import(Path::new("assets/models/cube.obj")).unwrap());
 
-    board.start(&models);
+    let square_size = Vector3 {
+        x: 0.4,
+        y: 0.4,
+        z: 0.4,
+    };
+
+    let mut board = ChessBoard::new();
+
     player.start(&mut camera);
 
     unsafe { Renderer::init() };
 
-    let cube = Box {
-        position: Vector3::up() * 1.0,
-        size: Vector3::one() * 0.5,
-    };
+    let _square_size = Vector3::one() * 0.4;
 
     while context.running() {
         context.window_mut().swap_buffers();
@@ -86,36 +89,91 @@ fn main() {
                     &camera.projection_matrix(&screen).transposition(),
                 );
 
-                // shader.set_uniform("model", &board.transform.mat().transposition());
                 shader.set_uniform("model", &Matrix4::identity());
-                board.model.draw();
-                
-                for piece in board.pieces() {
-                    shader.set_uniform("model", &piece.transform.mat().transposition());
-                    piece.model.draw();
-                }
+                models[0].draw();
 
-                let model_matrix = &(&Matrix4::translate(cube.position) * &Matrix4::uniform_scale(cube.size.x)).transposition();
-                
-                shader.set_uniform("model", model_matrix);
-                cube_model.draw();
+                for i in 0..8 {
+                    for j in 0..8 {
+                        shader.set_uniform(
+                            "model",
+                            &Matrix4::translate(Vector3::new(j as f32 - 4.0, 0.0, i as f32 - 3.0))
+                                .transposition(),
+                        );
+                        let idx: u8 = (board.get(i, j)).into();
+                        if idx as usize != 0 {
+                            models[idx as usize].draw();
+                        }
+
+                        //
+
+                        let model_matrix = (&Matrix4::translate(Vector3 {
+                            x: i as f32 - 3.5,
+                            y: -0.3,
+                            z: j as f32 - 3.5,
+                        }) * &Matrix4::scale(square_size))
+                            .transposition();
+
+                        shader.set_uniform("model", &model_matrix);
+                        cube_model.draw();
+                    }
+                }
             });
         }
 
-        // let inv = &Matrix4::translate(Vector3::fwd() * -15.0) * &Matrix4::uniform_scale(150.0);
         let inv = &view_matrix * &camera.inverse_projection_matrix(&screen);
 
         let pos = camera.transform.position();
-        let dir = &inv * Vector3 {
-            x: mouse.ndc(&screen).x,
-            y: mouse.ndc(&screen).y,
-            z: -1.0,
-        };
+        let dir = &inv
+            * Vector3 {
+                x: mouse.ndc(&screen).x,
+                y: mouse.ndc(&screen).y,
+                z: -1.0,
+            };
 
-        // println!("{} {}", pos, dir);
-        
         let ray = Ray::point_dir(pos, dir);
-        println!("{:?}", cube.raycast(&ray));
+
+        for i in 0..8 {
+            for j in 0..8 {
+                let box_pos = Vector3 {
+                    x: i as f32 - 3.5,
+                    y: -0.3,
+                    z: j as f32 - 3.5,
+                };
+
+                let raycast = Box {
+                    position: box_pos,
+                    size: square_size,
+                }
+                .raycast(&ray);
+
+                match raycast {
+                    Raycast::Miss => (),
+                    Raycast::Hit(hit) => println!("{:?}", (i, j)),
+                }
+            }
+        }
+
+        // let mut piece = None;
+        // let mut last_piece = None;
+
+        // if mouse.left_button().is_pressed() {
+        //     println!("{:?}", piece_pos);
+        //     for p in board.pieces_mut() {
+        //         if Some(p.position.clone()) == piece_pos {
+        //             piece = Some(p);
+        //         }
+
+        //         if Some(p.position.clone()) == last_piece_pos {
+        //             last_piece = Some(p);
+        //         }
+        //     }
+        // }
+
+        // if piece.is_some() && last_piece.is_some() {
+        //     last_piece.unwrap().position = piece_pos.unwrap();
+        // }
+
+        // last_piece_pos = piece_pos;
 
         // poll systems
         time.poll(&context);
