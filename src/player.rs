@@ -18,8 +18,8 @@ impl Default for Player {
 impl Player {
     pub fn start(&self, camera: &mut Camera) {
         camera.transform.set_position((
-                Vector3::fwd() * 1.0 +
-                Vector3::up() * 0.8
+                Vector3::fwd() * 1.0
+                + Vector3::up() * 0.8
             ) * 6.0
         );
     }
@@ -57,8 +57,8 @@ impl Player {
             ctx.disable_cursor();
             camera.transform.set_position((
                 Vector3::fwd() * z_dist +
-                Vector3::right() * x_dist +
-                Vector3::up() * 0.8
+                Vector3::right() * x_dist
+                 + Vector3::up() * 0.8
             ) * 6.0
         );
         } else {

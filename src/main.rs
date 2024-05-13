@@ -2,7 +2,7 @@ use std::{fs::read_to_string, path::Path};
 
 use suoi_game::{chess_board::ChessBoard, player::Player};
 
-use suoi_phsh::{collision_shape::CollisionShape, r#box::Box, ray::Ray};
+use suoi_phsh::{r#box::Box, collision_shape::CollisionShape, ray::Ray};
 use suoi_rwin::{
     shader::ShaderStage, Camera, ClippingPlanes, Context, EventHandler, GLFWContext,
     GraphicsObject, Model, Mouse, Projection, Renderer, Screen, ShaderStageType, Time,
@@ -53,43 +53,16 @@ fn main() {
     let models = models().expect("IMPORT_ERROR");
 
     let mut board = ChessBoard::new(&models[0]);
+    let cube_model = Model::from(Obj::import(Path::new("assets/models/cube.obj")).unwrap());
 
     board.start(&models);
     player.start(&mut camera);
 
-    // UI
-    let canvas = UICanvas {
-        width: screen.width(),
-        height: screen.height(),
-    };
-
-    let mut ui_cam = Camera::new(
-        Projection::new(
-            suoi_rwin::ProjectionType::Ortho(canvas.width, canvas.height),
-            ClippingPlanes::new(0.001, 1000.0),
-        ),
-        Default::default(),
-    );
-    ui_cam.transform.translate(Vector3::fwd() * 1.0);
-
-    let ui_vert = &read_to_string("assets/shaders/unlit2d.vert").unwrap();
-    let ui_frag = &read_to_string("assets/shaders/unlit2d.frag").unwrap();
-
-    let ui_shader = unsafe {
-        suoi_rwin::Shader::compile(
-            ShaderStage::compile(ui_vert, ShaderStageType::Vertex).unwrap(),
-            ShaderStage::compile(ui_frag, ShaderStageType::Fragment).unwrap(),
-        )
-    }
-    .unwrap();
-
-    let quad = Model::from(Obj::import(Path::new("assets/models/quad.obj")).expect("IMPORT_ERROR"));
-
     unsafe { Renderer::init() };
 
     let cube = Box {
-        position: Vector3::zero(),
-        size: Vector3::one(),
+        position: Vector3::up() * 1.0,
+        size: Vector3::one() * 0.5,
     };
 
     while context.running() {
@@ -113,37 +86,35 @@ fn main() {
                     &camera.projection_matrix(&screen).transposition(),
                 );
 
-                shader.set_uniform("model", &board.transform.mat().transposition());
+                // shader.set_uniform("model", &board.transform.mat().transposition());
+                shader.set_uniform("model", &Matrix4::identity());
                 board.model.draw();
-
+                
                 for piece in board.pieces() {
                     shader.set_uniform("model", &piece.transform.mat().transposition());
                     piece.model.draw();
                 }
-            });
 
-            // UI
-            ui_shader.with(|| {
-                ui_shader.set_uniform("texture1", 1);
-
-                // set uniform matrices
-                ui_shader.set_uniform("view", &ui_cam.view_matrix());
-                ui_shader.set_uniform(
-                    "projection",
-                    &ui_cam.projection_matrix(&screen).transposition(),
-                );
-
-                ui_shader.set_uniform("model", &Matrix4::uniform_scale(5.0));
-                quad.draw();
+                let model_matrix = &(&Matrix4::translate(cube.position) * &Matrix4::uniform_scale(cube.size.x)).transposition();
+                
+                shader.set_uniform("model", model_matrix);
+                cube_model.draw();
             });
         }
 
-        let fwd = Vector3 {
-            x: view_matrix.get(0, 2).unwrap(),
-            y: view_matrix.get(1, 2).unwrap(),
-            z: view_matrix.get(2, 2).unwrap(),
+        // let inv = &Matrix4::translate(Vector3::fwd() * -15.0) * &Matrix4::uniform_scale(150.0);
+        let inv = &view_matrix * &camera.inverse_projection_matrix(&screen);
+
+        let pos = camera.transform.position();
+        let dir = &inv * Vector3 {
+            x: mouse.ndc(&screen).x,
+            y: mouse.ndc(&screen).y,
+            z: -1.0,
         };
-        let ray = Ray::point_dir(camera.transform.position(), -fwd);
+
+        // println!("{} {}", pos, dir);
+        
+        let ray = Ray::point_dir(pos, dir);
         println!("{:?}", cube.raycast(&ray));
 
         // poll systems
