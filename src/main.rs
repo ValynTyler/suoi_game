@@ -96,16 +96,16 @@ fn main() {
                 shader.set_uniform("view", &camera.view_matrix());
                 shader.set_uniform(
                     "projection",
-                    &camera.projection_matrix(&screen).transposition(),
+                    &camera.projection_matrix(&screen).transpose(),
                 );
 
                 shader.set_uniform("model", &Matrix4::identity());
                 model.draw();
 
-                shader.set_uniform("model", &cube.mat().transposition());
+                shader.set_uniform("model", &cube.mat().transpose());
                 cube_model.draw();
 
-                shader.set_uniform("model", &cube2.mat().transposition());
+                shader.set_uniform("model", &cube2.mat().transpose());
                 cube_model.draw();
             });
 
@@ -117,7 +117,7 @@ fn main() {
                 ui_shader.set_uniform("view", &ui_cam.view_matrix());
                 ui_shader.set_uniform(
                     "projection",
-                    &ui_cam.projection_matrix(&screen).transposition(),
+                    &ui_cam.projection_matrix(&screen).transpose(),
                 );
 
                 ui_shader.set_uniform("model", &Matrix4::uniform_scale(5.0));
