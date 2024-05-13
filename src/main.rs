@@ -69,8 +69,8 @@ fn main() {
     .unwrap();
 
     let quad = Model::from(Obj::import(Path::new("assets/models/quad.obj")).expect("IMPORT_ERROR"));
-
-    unsafe { Renderer::init() };
+    let cube_model =
+        Model::from(Obj::import(Path::new("assets/models/cube.obj")).expect("IMPORT_ERROR"));
 
     let cube = BoundingBox {
         position: Vector3::new(2.0, -0.0, -5.0),
@@ -82,8 +82,9 @@ fn main() {
         size: Vector3::one() + Vector3::right() * 2.5 - Vector3::up() * 0.2,
     };
 
-    let cube_model =
-        Model::from(Obj::import(Path::new("assets/models/cube.obj")).expect("IMPORT_ERROR"));
+    unsafe { Renderer::init() };
+
+    context.enable_cursor();
 
     while context.running() {
         context.window_mut().swap_buffers();
@@ -94,18 +95,15 @@ fn main() {
 
                 // set uniform matrices
                 shader.set_uniform("view", &camera.view_matrix());
-                shader.set_uniform(
-                    "projection",
-                    &camera.projection_matrix(&screen).transposition(),
-                );
+                shader.set_uniform("projection", &camera.projection_matrix(&screen).transpose());
 
                 shader.set_uniform("model", &Matrix4::identity());
                 model.draw();
 
-                shader.set_uniform("model", &cube.mat().transposition());
+                shader.set_uniform("model", &cube.mat().transpose());
                 cube_model.draw();
 
-                shader.set_uniform("model", &cube2.mat().transposition());
+                shader.set_uniform("model", &cube2.mat().transpose());
                 cube_model.draw();
             });
 
@@ -115,18 +113,17 @@ fn main() {
 
                 // set uniform matrices
                 ui_shader.set_uniform("view", &ui_cam.view_matrix());
-                ui_shader.set_uniform(
-                    "projection",
-                    &ui_cam.projection_matrix(&screen).transposition(),
-                );
+                ui_shader.set_uniform("projection", &ui_cam.projection_matrix(&screen).transpose());
 
                 ui_shader.set_uniform("model", &Matrix4::uniform_scale(5.0));
                 quad.draw();
             });
         }
 
-        let ray = Ray::point_dir(camera.transform.position(), -camera.transform.forward());
+        let ray = screen_cast(&mouse, &screen, &camera);
         println!("{:?}", ray.cast(vec![&cube, &cube2]));
+        if mouse.left_button().just_pressed() {
+        }
 
         // poll systems
         time.poll(&context);
@@ -136,4 +133,17 @@ fn main() {
         // update
         player.update(&mut context, time.delta(), &mouse, &mut camera);
     }
+}
+
+fn screen_cast(mouse: &Mouse, screen: &Screen, camera: &Camera) -> Ray {
+    let v = Vector3 {
+        x: mouse.ndc(screen).x,
+        y: mouse.ndc(screen).y,
+        z: -1.0,
+    };
+    let v = &camera.inverse_projection_matrix(&screen) * v;
+
+    // println!("{:.2}", v);
+
+    Ray::point_dir(Vector3::zero(), v)
 }
