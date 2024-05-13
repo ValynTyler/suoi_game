@@ -2,7 +2,7 @@ use std::{fs::read_to_string, path::Path};
 
 use suoi_game::{player::Player, Matrix4, Vector, Vector3};
 
-use suoi_phsh::{collision_shape::CollisionShape, r#box::Box, ray::Ray};
+use suoi_phsh::{bounding_box::BoundingBox, ray::Ray};
 use suoi_rwin::{
     shader::ShaderStage, Camera, ClippingPlanes, Context, EventHandler, GLFWContext,
     GraphicsObject, Model, Mouse, Projection, Renderer, Screen, ShaderStageType, Time,
@@ -72,9 +72,14 @@ fn main() {
 
     unsafe { Renderer::init() };
 
-    let cube = Box {
-        position: Vector3::new(0.0, 3.0, 4.0),
+    let cube = BoundingBox {
+        position: Vector3::new(2.0, -0.0, -5.0),
         size: Vector3::one(),
+    };
+
+    let cube2 = BoundingBox {
+        position: Vector3::new(0.0, 3.0, -14.0),
+        size: Vector3::one() + Vector3::right() * 2.5 - Vector3::up() * 0.2,
     };
 
     let cube_model =
@@ -99,6 +104,9 @@ fn main() {
 
                 shader.set_uniform("model", &cube.mat().transposition());
                 cube_model.draw();
+
+                shader.set_uniform("model", &cube2.mat().transposition());
+                cube_model.draw();
             });
 
             // UI
@@ -118,7 +126,7 @@ fn main() {
         }
 
         let ray = Ray::point_dir(camera.transform.position(), -camera.transform.forward());
-        println!("{:?}", cube.raycast(&ray));
+        println!("{:?}", ray.cast(vec![&cube, &cube2]));
 
         // poll systems
         time.poll(&context);
