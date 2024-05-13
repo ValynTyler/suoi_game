@@ -2,7 +2,7 @@ use std::{fs::read_to_string, path::Path};
 
 use suoi_game::{player::Player, Matrix4, Vector, Vector3};
 
-use suoi_phsh::{r#box::Box, collision_shape::CollisionShape, ray::Ray};
+use suoi_phsh::{collision_shape::CollisionShape, r#box::Box, ray::Ray};
 use suoi_rwin::{
     shader::ShaderStage, Camera, ClippingPlanes, Context, EventHandler, GLFWContext,
     GraphicsObject, Model, Mouse, Projection, Renderer, Screen, ShaderStageType, Time,
@@ -73,9 +73,12 @@ fn main() {
     unsafe { Renderer::init() };
 
     let cube = Box {
-        position: Vector3::zero(),
+        position: Vector3::new(0.0, 3.0, 4.0),
         size: Vector3::one(),
     };
+
+    let cube_model =
+        Model::from(Obj::import(Path::new("assets/models/cube.obj")).expect("IMPORT_ERROR"));
 
     while context.running() {
         context.window_mut().swap_buffers();
@@ -85,14 +88,17 @@ fn main() {
                 shader.set_uniform("texture1", 1);
 
                 // set uniform matrices
-                shader.set_uniform("view", camera.view_matrix());
+                shader.set_uniform("view", &camera.view_matrix());
                 shader.set_uniform(
                     "projection",
-                    camera.projection_matrix(&screen).transposition(),
+                    &camera.projection_matrix(&screen).transposition(),
                 );
 
-                shader.set_uniform("model", Matrix4::identity());
+                shader.set_uniform("model", &Matrix4::identity());
                 model.draw();
+
+                shader.set_uniform("model", &cube.mat().transposition());
+                cube_model.draw();
             });
 
             // UI
@@ -100,13 +106,13 @@ fn main() {
                 ui_shader.set_uniform("texture1", 1);
 
                 // set uniform matrices
-                ui_shader.set_uniform("view", ui_cam.view_matrix());
+                ui_shader.set_uniform("view", &ui_cam.view_matrix());
                 ui_shader.set_uniform(
                     "projection",
-                    ui_cam.projection_matrix(&screen).transposition(),
+                    &ui_cam.projection_matrix(&screen).transposition(),
                 );
 
-                ui_shader.set_uniform("model", Matrix4::uniform_scale(5.0));
+                ui_shader.set_uniform("model", &Matrix4::uniform_scale(5.0));
                 quad.draw();
             });
         }
