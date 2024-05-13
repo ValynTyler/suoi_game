@@ -21,7 +21,7 @@ fn main() {
     let mut camera = Camera::default();
     let mut player = Player::default();
 
-    let mut screen = Screen::new(800, 480);
+    let mut screen = Screen::new(800, 800);
     let mut context = Context::init(&screen);
     let mut event_handler = EventHandler::default();
 
@@ -39,8 +39,8 @@ fn main() {
     }
     .unwrap();
 
-    let model_path = Path::new("assets/models/scene.obj");
-    let model = Model::from(Obj::import(model_path).expect("IMPORT_ERROR"));
+    // let model_path = Path::new("assets/models/scene.obj");
+    // let model = Model::from(Obj::import(model_path).expect("IMPORT_ERROR"));
 
     // UI
     let canvas = UICanvas {
@@ -73,12 +73,12 @@ fn main() {
         Model::from(Obj::import(Path::new("assets/models/cube.obj")).expect("IMPORT_ERROR"));
 
     let cube = BoundingBox {
-        position: Vector3::new(-2.0, -0.0, -5.0),
+        position: Vector3::new(-1.0, -0.0, -6.0),
         size: Vector3::one(),
     };
 
     let cube2 = BoundingBox {
-        position: Vector3::new(0.0, 3.0, -14.0),
+        position: Vector3::new(10.0, 3.0, -14.0),
         size: Vector3::one() + Vector3::right() * 2.5 - Vector3::up() * 0.2,
     };
 
@@ -98,7 +98,7 @@ fn main() {
                 shader.set_uniform("projection", &camera.projection_matrix(&screen).transpose());
 
                 shader.set_uniform("model", &Matrix4::identity());
-                model.draw();
+                // model.draw();
 
                 shader.set_uniform("model", &cube.mat().transpose());
                 cube_model.draw();
@@ -115,17 +115,18 @@ fn main() {
                 ui_shader.set_uniform("view", &ui_cam.view_matrix());
                 ui_shader.set_uniform("projection", &ui_cam.projection_matrix(&screen).transpose());
 
-                ui_shader.set_uniform("model", &Matrix4::uniform_scale(5.0));
+                let model_matrix = &Matrix4::translate(Vector3 {
+                    x: mouse.position().x - screen.width() as f32 / 2.0,
+                    y: -mouse.position().y + screen.height() as f32 / 2.0,
+                    z: 0.0,
+                }) * &Matrix4::uniform_scale(3.0);
+                ui_shader.set_uniform("model", &model_matrix.transpose());
                 quad.draw();
             });
         }
 
         let ray = screen_cast(&mouse, &screen, &camera);
-        println!("{:?}", ray.cast(vec![&cube, &cube2]));
-
-        if mouse.left_button().just_pressed() {
-            //
-        }
+        println!("{}", ray.cast(vec![&cube, &cube2]));
 
         // poll systems
         time.poll(&context);
@@ -138,12 +139,12 @@ fn main() {
 }
 
 fn screen_cast(mouse: &Mouse, screen: &Screen, camera: &Camera) -> Ray {
-    let v = Vector3 {
-        x: mouse.ndc(screen).x,
-        y: mouse.ndc(screen).y,
-        z: -1.0,
-    }.unit();
-    let v = &camera.inverse_projection_matrix(&screen) * v;
+    let v = &camera.inverse_projection_matrix(&screen)
+        * Vector3 {
+            x: mouse.ndc(screen).x,
+            y: mouse.ndc(screen).y,
+            z: -1.0,
+        };
 
     // println!("{:.2}", v);
 
