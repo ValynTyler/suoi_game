@@ -2,7 +2,7 @@ use std::{fs::read_to_string, path::Path};
 
 use suoi_game::{player::Player, Matrix4, Vector, Vector3};
 
-use suoi_phsh::{bounding_box::BoundingBox, plane::Plane, ray::Ray};
+use suoi_phsh::{bounding_box::BoundingBox, ray::Ray};
 use suoi_rwin::{
     shader::ShaderStage, Camera, ClippingPlanes, Context, EventHandler, GLFWContext,
     GraphicsObject, Model, Mouse, Projection, Renderer, Screen, ShaderStageType, Time,
