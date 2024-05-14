@@ -9,7 +9,7 @@ pub struct Player {
 impl Default for Player {
     fn default() -> Self {
         Self {
-            sensitivity: 5.0,
+            sensitivity: 10.0,
             yaw: Default::default(),
         }
     }
