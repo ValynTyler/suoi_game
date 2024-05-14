@@ -144,9 +144,7 @@ fn screen_cast(mouse: &Mouse, screen: &Screen, camera: &Camera) -> Ray {
         z: -1.0,
     };
 
-    let v = &camera.inverse_projection_matrix(&screen) * ndc;
-    
-    // println!("{} {}", v, &camera.view_matrix().inverse() * v);
+    let v = &(&camera.projection_matrix(&screen) * &camera.view_matrix()).inverse() * ndc;
 
-    Ray::point_dir(Vector3::zero(), v)
+    Ray::point_dir(camera.transform.position(), v)
 }
