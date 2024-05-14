@@ -75,13 +75,13 @@ fn main() {
                 // shader.set_uniform("view", camera.view_matrix());
                 shader.set_uniform(
                     "projection",
-                    &camera.projection_matrix(&screen).transposition(),
+                    &camera.projection_matrix(&screen).transpose(),
                 );
 
                 shader.set_uniform("model", &Matrix4::identity());
                 model.draw();
 
-                shader.set_uniform("model", &monke_matrix.transposition());
+                shader.set_uniform("model", &monke_matrix.transpose());
                 monke.draw();
             });
         }
