@@ -36,7 +36,12 @@ impl Player {
             context.close()
         }
 
-        self.turn_camera(delta_time, mouse, camera);
+        if mouse.right_button().is_pressed() {
+            context.disable_cursor();
+            self.turn_camera(delta_time, mouse, camera);
+        } else {
+            context.enable_cursor();
+        }
     }
 
     #[rustfmt::skip]
@@ -52,7 +57,7 @@ impl Player {
         }
 
         let pos = Vector3::fwd().rotate(
-            Quaternion::axis_angle(Vector3::up(), Rad(self.yaw * 0.01))
+            Quaternion::axis_angle(Vector3::up(), Rad(self.yaw))
         );
 
         camera.transform.set_position(
