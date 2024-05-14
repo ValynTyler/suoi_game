@@ -19,10 +19,8 @@ impl Default for Player {
 }
 
 impl Player {
-    pub fn start(&self, camera: &mut Camera) {
-        camera
-            .transform
-            .translate(Vector3::fwd() * -10. + Vector3::up() * 3.);
+    pub fn start(&mut self, camera: &mut Camera) {
+        self.turn_camera(0.01, &Mouse::default(), camera);
     }
 
     pub fn update(

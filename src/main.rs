@@ -2,7 +2,7 @@ use std::{fs::read_to_string, path::Path};
 
 use suoi_game::{player::Player, Matrix4, Vector, Vector3};
 
-use suoi_phsh::{bounding_box::BoundingBox, ray::Ray};
+use suoi_phsh::{bounding_box::BoundingBox, plane::Plane, ray::Ray};
 use suoi_rwin::{
     shader::ShaderStage, Camera, ClippingPlanes, Context, EventHandler, GLFWContext,
     GraphicsObject, Model, Mouse, Projection, Renderer, Screen, ShaderStageType, Time,
@@ -39,9 +39,6 @@ fn main() {
     }
     .unwrap();
 
-    // let model_path = Path::new("assets/models/scene.obj");
-    // let model = Model::from(Obj::import(model_path).expect("IMPORT_ERROR"));
-
     // UI
     let canvas = UICanvas {
         width: screen.width(),
@@ -71,6 +68,8 @@ fn main() {
     let quad = Model::from(Obj::import(Path::new("assets/models/quad.obj")).expect("IMPORT_ERROR"));
     let cube_model =
         Model::from(Obj::import(Path::new("assets/models/cube.obj")).expect("IMPORT_ERROR"));
+    let scene_model =
+        Model::from(Obj::import(Path::new("assets/models/scene.obj")).expect("IMPORT_ERROR"));
 
     let cube = BoundingBox {
         position: Vector3::new(-2.0, -2.0, -6.0),
@@ -82,22 +81,31 @@ fn main() {
         size: Vector3::one() + Vector3::right() * 2.5 + Vector3::fwd() * 3.0,
     };
 
-    // camera.transform.translate(Vector3::fwd() * 13.0);
-
     unsafe { Renderer::init() };
 
     context.enable_cursor();
 
     while context.running() {
         context.window_mut().swap_buffers();
+
+        let view_matrix = Matrix4::look_at_dir(
+            camera.transform.position(),
+            -camera.transform.position(),
+            Vector3::up(),
+        );
+
         unsafe {
             Renderer::clear_screen(CLEAR_COLOR);
             shader.with(|| {
                 shader.set_uniform("texture1", 1);
 
                 // set uniform matrices
+                // shader.set_uniform("view", &view_matrix);
                 shader.set_uniform("view", &camera.view_matrix());
                 shader.set_uniform("projection", &camera.projection_matrix(&screen).transpose());
+
+                shader.set_uniform("model", &Matrix4::identity());
+                scene_model.draw();
 
                 shader.set_uniform("model", &cube.mat().transpose());
                 cube_model.draw();
@@ -124,7 +132,7 @@ fn main() {
             });
         }
 
-        let ray = screen_cast(&mouse, &screen, &camera);
+        let ray = screen_cast(&mouse, &screen, &camera, &view_matrix);
         println!("{}", ray.cast(vec![&cube, &cube2]));
 
         // poll systems
@@ -137,13 +145,14 @@ fn main() {
     }
 }
 
-fn screen_cast(mouse: &Mouse, screen: &Screen, camera: &Camera) -> Ray {
+fn screen_cast(mouse: &Mouse, screen: &Screen, camera: &Camera, view_matrix: &Matrix4) -> Ray {
     let ndc = Vector3 {
         x: mouse.ndc(screen).x,
         y: mouse.ndc(screen).y,
         z: -1.0,
     };
 
+    // let v = &(&camera.projection_matrix(&screen) * view_matrix).inverse() * ndc;
     let v = &(&camera.projection_matrix(&screen) * &camera.view_matrix()).inverse() * ndc;
 
     Ray::point_dir(camera.transform.position(), v)
