@@ -83,7 +83,6 @@ fn main() {
                 shader.set_uniform(
                     "projection",
                     &camera.projection_matrix(&screen).transpose(),
-                    &camera.projection_matrix(&screen).transpose(),
                 );
 
                 shader.set_uniform("model", &Matrix4::identity());
