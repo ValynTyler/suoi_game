@@ -28,7 +28,7 @@ fn main() {
     let mut mouse = Mouse::default();
 
     let vert_data = &read_to_string("assets/shaders/basic.vert").unwrap();
-    let frag_data = &read_to_string("assets/shaders/normal.frag").unwrap();
+    let frag_data = &read_to_string("assets/shaders/basic.frag").unwrap();
 
     let shader = unsafe {
         suoi_rwin::Shader::compile(
@@ -113,7 +113,7 @@ fn main() {
                             .transpose();
 
                         shader.set_uniform("model", &model_matrix);
-                        // cube_model.draw();
+                        // _cube_model.draw();
                     }
                 }
             });
@@ -131,13 +131,21 @@ fn main() {
 
         let _ray = Ray::point_dir(pos, dir);
 
+        let colliders: Vec<BoundingBox> = vec![];
+
+        for i in 0..8 {
+            for j in 0..8 {
+                let box_pos = Vector3 {
+                    x: i as f32 - 3.5,
+                    y: -0.3,
+                    z: j as f32 - 3.5,
+                };
+            }
+        }
+
         // for i in 0..8 {
         //     for j in 0..8 {
-        //         let box_pos = Vector3 {
-        //             x: i as f32 - 3.5,
-        //             y: -0.3,
-        //             z: j as f32 - 3.5,
-        //         };
+        //         
 
         //         let raycast = Box {
         //             position: box_pos,
