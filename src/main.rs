@@ -21,7 +21,7 @@ fn main() {
     let mut camera = Camera::default();
     let mut player = Player::default();
 
-    let mut screen = Screen::new(800, 800);
+    let mut screen = Screen::new(800, 480);
     let mut context = Context::init(&screen);
     let mut event_handler = EventHandler::default();
 
@@ -73,14 +73,16 @@ fn main() {
         Model::from(Obj::import(Path::new("assets/models/cube.obj")).expect("IMPORT_ERROR"));
 
     let cube = BoundingBox {
-        position: Vector3::new(-1.0, -0.0, -6.0),
+        position: Vector3::new(-2.0, -2.0, -6.0),
         size: Vector3::one(),
     };
 
     let cube2 = BoundingBox {
-        position: Vector3::new(10.0, 3.0, -14.0),
-        size: Vector3::one() + Vector3::right() * 2.5 - Vector3::up() * 0.2,
+        position: Vector3::new(5.0, 3.0, -14.0),
+        size: Vector3::one() + Vector3::right() * 2.5 + Vector3::fwd() * 3.0,
     };
+
+    // camera.transform.translate(Vector3::fwd() * 13.0);
 
     unsafe { Renderer::init() };
 
@@ -96,9 +98,6 @@ fn main() {
                 // set uniform matrices
                 shader.set_uniform("view", &camera.view_matrix());
                 shader.set_uniform("projection", &camera.projection_matrix(&screen).transpose());
-
-                shader.set_uniform("model", &Matrix4::identity());
-                // model.draw();
 
                 shader.set_uniform("model", &cube.mat().transpose());
                 cube_model.draw();
@@ -139,14 +138,15 @@ fn main() {
 }
 
 fn screen_cast(mouse: &Mouse, screen: &Screen, camera: &Camera) -> Ray {
-    let v = &camera.inverse_projection_matrix(&screen)
-        * Vector3 {
-            x: mouse.ndc(screen).x,
-            y: mouse.ndc(screen).y,
-            z: -1.0,
-        };
+    let ndc = Vector3 {
+        x: mouse.ndc(screen).x,
+        y: mouse.ndc(screen).y,
+        z: -1.0,
+    };
 
-    // println!("{:.2}", v);
+    let v = &camera.inverse_projection_matrix(&screen) * ndc;
+    
+    // println!("{} {}", v, &camera.view_matrix().inverse() * v);
 
     Ray::point_dir(Vector3::zero(), v)
 }
