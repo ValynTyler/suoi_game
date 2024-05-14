@@ -88,12 +88,6 @@ fn main() {
     while context.running() {
         context.window_mut().swap_buffers();
 
-        let view_matrix = Matrix4::look_at_dir(
-            camera.transform.position(),
-            -camera.transform.position(),
-            Vector3::up(),
-        );
-
         unsafe {
             Renderer::clear_screen(CLEAR_COLOR);
             shader.with(|| {
@@ -132,7 +126,7 @@ fn main() {
             });
         }
 
-        let ray = screen_cast(&mouse, &screen, &camera, &view_matrix);
+        let ray = screen_cast(&mouse, &screen, &camera);
         println!("{}", ray.cast(vec![&cube, &cube2]));
 
         // poll systems
@@ -145,14 +139,13 @@ fn main() {
     }
 }
 
-fn screen_cast(mouse: &Mouse, screen: &Screen, camera: &Camera, view_matrix: &Matrix4) -> Ray {
+fn screen_cast(mouse: &Mouse, screen: &Screen, camera: &Camera) -> Ray {
     let ndc = Vector3 {
         x: mouse.ndc(screen).x,
         y: mouse.ndc(screen).y,
         z: -1.0,
     };
 
-    // let v = &(&camera.projection_matrix(&screen) * view_matrix).inverse() * ndc;
     let v = &(&camera.projection_matrix(&screen) * &camera.view_matrix()).inverse() * ndc;
 
     Ray::point_dir(camera.transform.position(), v)
