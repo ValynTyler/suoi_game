@@ -1,13 +1,12 @@
 use std::{fs::read_to_string, path::Path};
 
 use suoi_game::{
-    chess_board::{ChessBoard, Piece},
+    chess_board::ChessBoard,
     player::Player,
 };
 
-use suoi_phsh::ray::Raycast;
 #[allow(unused_imports)]
-use suoi_phsh::{collision_shape::CollisionShape, r#box::Box, ray::Ray};
+use suoi_phsh::{collision_shape::CollisionShape, bounding_box::BoundingBox, ray::Ray};
 use suoi_rwin::{
     shader::ShaderStage, Camera, Context, EventHandler, GLFWContext, GraphicsObject, Model, Mouse,
     Renderer, Screen, ShaderStageType, Time,
@@ -29,7 +28,7 @@ fn main() {
     let mut mouse = Mouse::default();
 
     let vert_data = &read_to_string("assets/shaders/basic.vert").unwrap();
-    let frag_data = &read_to_string("assets/shaders/basic.frag").unwrap();
+    let frag_data = &read_to_string("assets/shaders/normal.frag").unwrap();
 
     let shader = unsafe {
         suoi_rwin::Shader::compile(
@@ -52,7 +51,7 @@ fn main() {
     }
     let models = models().expect("IMPORT_ERROR");
 
-    let cube_model = Model::from(Obj::import(Path::new("assets/models/cube.obj")).unwrap());
+    let _cube_model = Model::from(Obj::import(Path::new("assets/models/cube.obj")).unwrap());
 
     let square_size = Vector3 {
         x: 0.4,
@@ -60,7 +59,7 @@ fn main() {
         z: 0.4,
     };
 
-    let mut board = ChessBoard::new();
+    let board = ChessBoard::new();
 
     player.start(&mut camera);
 
@@ -86,7 +85,7 @@ fn main() {
                 shader.set_uniform("view", &view_matrix);
                 shader.set_uniform(
                     "projection",
-                    &camera.projection_matrix(&screen).transposition(),
+                    &camera.projection_matrix(&screen).transpose(),
                 );
 
                 shader.set_uniform("model", &Matrix4::identity());
@@ -97,7 +96,7 @@ fn main() {
                         shader.set_uniform(
                             "model",
                             &Matrix4::translate(Vector3::new(j as f32 - 4.0, 0.0, i as f32 - 3.0))
-                                .transposition(),
+                                .transpose(),
                         );
                         let idx: u8 = (board.get(i, j)).into();
                         if idx as usize != 0 {
@@ -111,10 +110,10 @@ fn main() {
                             y: -0.3,
                             z: j as f32 - 3.5,
                         }) * &Matrix4::scale(square_size))
-                            .transposition();
+                            .transpose();
 
                         shader.set_uniform("model", &model_matrix);
-                        cube_model.draw();
+                        // cube_model.draw();
                     }
                 }
             });
@@ -130,28 +129,28 @@ fn main() {
                 z: -1.0,
             };
 
-        let ray = Ray::point_dir(pos, dir);
+        let _ray = Ray::point_dir(pos, dir);
 
-        for i in 0..8 {
-            for j in 0..8 {
-                let box_pos = Vector3 {
-                    x: i as f32 - 3.5,
-                    y: -0.3,
-                    z: j as f32 - 3.5,
-                };
+        // for i in 0..8 {
+        //     for j in 0..8 {
+        //         let box_pos = Vector3 {
+        //             x: i as f32 - 3.5,
+        //             y: -0.3,
+        //             z: j as f32 - 3.5,
+        //         };
 
-                let raycast = Box {
-                    position: box_pos,
-                    size: square_size,
-                }
-                .raycast(&ray);
+        //         let raycast = Box {
+        //             position: box_pos,
+        //             size: square_size,
+        //         }
+        //         .raycast(&ray);
 
-                match raycast {
-                    Raycast::Miss => (),
-                    Raycast::Hit(hit) => println!("{:?}", (i, j)),
-                }
-            }
-        }
+        //         match raycast {
+        //             Raycast::Miss => (),
+        //             Raycast::Hit(hit) => println!("{:?}", (i, j)),
+        //         }
+        //     }
+        // }
 
         // let mut piece = None;
         // let mut last_piece = None;
