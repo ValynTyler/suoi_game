@@ -20,7 +20,8 @@ impl Default for Player {
 
 impl Player {
     pub fn start(&mut self, camera: &mut Camera) {
-        self.turn_camera(0.01, &Mouse::default(), camera);
+        // camera.transform.set_position(Vector3::fwd() * 10.0 + Vector3::up() * 4.0)
+        camera.transform.set_position(Vector3::fwd() * 15.0)
     }
 
     pub fn update(
@@ -59,7 +60,8 @@ impl Player {
         );
 
         camera.transform.set_position(
-            pos * 10.0 + Vector3::up() * 4.0
+            // pos * 10.0 + Vector3::up() * 4.0
+            pos * 15.0
         );
     }
 }

@@ -21,7 +21,7 @@ fn main() {
     let mut camera = Camera::default();
     let mut player = Player::default();
 
-    let mut screen = Screen::new(800, 480);
+    let mut screen = Screen::new(800, 800);
     let mut context = Context::init(&screen);
     let mut event_handler = EventHandler::default();
 
@@ -83,6 +83,8 @@ fn main() {
 
     unsafe { Renderer::init() };
 
+    player.start(&mut camera);
+
     context.enable_cursor();
 
     while context.running() {
@@ -90,8 +92,8 @@ fn main() {
 
         let view_matrix = Matrix4::look_at_dir(
             camera.transform.position(),
-            -camera.transform.position(),
-            Vector3::up(),
+            -camera.transform.position().unit(),
+            Vector3::up().unit(),
         );
 
         unsafe {
@@ -100,8 +102,8 @@ fn main() {
                 shader.set_uniform("texture1", 1);
 
                 // set uniform matrices
-                // shader.set_uniform("view", &view_matrix);
-                shader.set_uniform("view", &camera.view_matrix());
+                // shader.set_uniform("view", &camera.view_matrix());
+                shader.set_uniform("view", &view_matrix);
                 shader.set_uniform("projection", &camera.projection_matrix(&screen).transpose());
 
                 shader.set_uniform("model", &Matrix4::identity());
@@ -152,8 +154,8 @@ fn screen_cast(mouse: &Mouse, screen: &Screen, camera: &Camera, view_matrix: &Ma
         z: -1.0,
     };
 
-    // let v = &(&camera.projection_matrix(&screen) * view_matrix).inverse() * ndc;
-    let v = &(&camera.projection_matrix(&screen) * &camera.view_matrix()).inverse() * ndc;
+    // let v = &(&camera.projection_matrix(&screen) * &camera.view_matrix()).inverse() * ndc;
+    let v = &(&camera.projection_matrix(&screen) * view_matrix).inverse() * ndc;
 
     Ray::point_dir(camera.transform.position(), v)
 }
