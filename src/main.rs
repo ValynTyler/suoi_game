@@ -1,10 +1,10 @@
 use std::{fs::read_to_string, path::Path};
 
-use suoi_game::{player::Player, Matrix4};
+use suoi_game::{player::Player, Matrix4, Vector, Vector3};
 
 use suoi_rwin::{
-    shader::ShaderStage, Camera, Context, EventHandler, GLFWContext, GraphicsObject, Model, Mouse,
-    Renderer, Screen, ShaderStageType, Time,
+    shader::ShaderStage, Camera, Context, EventHandler, GLFWContext, GraphicsObject, Line, Model,
+    Mouse, Renderer, Screen, ShaderStageType, Time,
 };
 use suoi_simp::{obj::Obj, Resource};
 use suoi_types::{Color, Matrix};
@@ -36,12 +36,14 @@ fn main() {
     let model_path = Path::new("assets/models/scene.obj");
     let model = Model::from(Obj::import(model_path).expect("IMPORT_ERROR"));
 
+    let line = unsafe { Line::new(Vector3::one() * -100.0, Vector3::one() * 100.0) };
     unsafe { Renderer::init() };
 
     while context.running() {
         context.window_mut().swap_buffers();
         unsafe {
             Renderer::clear_screen(CLEAR_COLOR);
+
             shader.with(|| {
                 // set the texture unit of the texture sampler `texture1`
                 let texture_unit = 1;
@@ -54,6 +56,8 @@ fn main() {
                 shader.set_uniform("model", &Matrix4::identity());
                 model.draw();
             });
+
+            line.draw(&camera, &screen);
         }
 
         // poll systems
