@@ -4,8 +4,7 @@ use suoi_game::{player::Player, Matrix4, Vector, Vector3};
 
 use suoi_phsh::{bounding_box::BoundingBox, ray::Ray};
 use suoi_rwin::{
-    shader::ShaderStage, Camera, ClippingPlanes, Context, EventHandler, GLFWContext,
-    GraphicsObject, Model, Mouse, Projection, Renderer, Screen, ShaderStageType, Time,
+    shader::ShaderStage, Camera, ClippingPlanes, Context, EventHandler, GLFWContext, GraphicsObject, Line, Model, Mouse, Projection, Renderer, Screen, ShaderStageType, Time
 };
 use suoi_simp::{obj::Obj, Resource};
 use suoi_types::{Color, Matrix};
@@ -83,10 +82,17 @@ fn main() {
 
     unsafe { Renderer::init() };
 
+    let mut line = unsafe {
+        Line::new(Vector3::zero(), Vector3::one() * 1000.0)
+    };
+
     context.enable_cursor();
 
     while context.running() {
         context.window_mut().swap_buffers();
+
+        let ray = screen_cast(&mouse, &screen, &camera);
+        println!("{}", ray.cast(vec![&cube, &cube2]));
 
         unsafe {
             Renderer::clear_screen(CLEAR_COLOR);
@@ -108,6 +114,11 @@ fn main() {
                 cube_model.draw();
             });
 
+            // line
+            // line.set_start(ray.pos());
+            line.set_end(ray.pos() + ray.dir());
+            line.draw(&camera, &screen);
+
             // UI
             ui_shader.with(|| {
                 ui_shader.set_uniform("texture1", 1);
@@ -125,9 +136,6 @@ fn main() {
                 quad.draw();
             });
         }
-
-        let ray = screen_cast(&mouse, &screen, &camera);
-        println!("{}", ray.cast(vec![&cube, &cube2]));
 
         // poll systems
         time.poll(&context);
