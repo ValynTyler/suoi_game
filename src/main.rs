@@ -3,7 +3,8 @@ use std::{fs::read_to_string, path::Path};
 use suoi_game::{player::Player, Matrix4};
 
 use suoi_rwin::{
-    shader::ShaderStage, Camera, Context, EventHandler, GLFWContext, GraphicsObject, Model, Mouse, Renderer, Screen, ShaderStageType, Time
+    shader::ShaderStage, Camera, Context, EventHandler, GLFWContext, GraphicsObject, Model, Mouse,
+    Renderer, Screen, ShaderStageType, Time,
 };
 use suoi_simp::{obj::Obj, Resource};
 use suoi_types::{Color, Matrix};
@@ -42,16 +43,15 @@ fn main() {
         unsafe {
             Renderer::clear_screen(CLEAR_COLOR);
             shader.with(|| {
-                shader.set_uniform("texture1", 1);
+                // set the texture unit of the texture sampler `texture1`
+                let texture_unit = 1;
+                shader.set_uniform("texture1", texture_unit);
 
                 // set uniform matrices
-                shader.set_uniform("model", &Matrix4::identity());
                 shader.set_uniform("view", &camera.view_matrix());
-                shader.set_uniform(
-                    "projection",
-                    &camera.projection_matrix(&screen).transpose(),
-                );
+                shader.set_uniform("projection", &camera.projection_matrix(&screen).transpose());
 
+                shader.set_uniform("model", &Matrix4::identity());
                 model.draw();
             });
         }
