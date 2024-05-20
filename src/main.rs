@@ -20,7 +20,7 @@ fn main() {
     let mut camera = Camera::default();
     let mut player = Player::default();
 
-    let mut screen = Screen::new(800, 800);
+    let mut screen = Screen::new(800, 480);
     let mut context = Context::init(&screen);
     let mut event_handler = EventHandler::default();
 
