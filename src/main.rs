@@ -96,14 +96,20 @@ fn main() {
         let view_matrix = Matrix4::look_at_dir(
             camera.transform.position(),
             -camera.transform.position().unit(),
-            Vector3::up().unit(),
-        );
+            Vector3::up(),
+        ).transpose();
 
         let ray = screen_cast(&mouse, &screen, &camera, &view_matrix);
-        println!("{}", ray.cast(vec![&cube, &cube2]));
+        // println!("{}", ray.cast(vec![&cube, &cube2]));
 
         unsafe {
             Renderer::clear_screen(CLEAR_COLOR);
+
+            // line
+            line.set_end(ray.pos() + ray.dir());
+            line.draw(&camera, &screen);
+
+            // world
             shader.with(|| {
                 shader.set_uniform("texture1", 1);
 
@@ -121,10 +127,6 @@ fn main() {
                 shader.set_uniform("model", &cube2.mat().transpose());
                 cube_model.draw();
             });
-
-            // line
-            line.set_end(ray.pos() + ray.dir());
-            line.draw(&camera, &screen);
 
             // UI
             ui_shader.with(|| {
@@ -161,8 +163,10 @@ fn screen_cast(mouse: &Mouse, screen: &Screen, camera: &Camera, view_matrix: &Ma
         z: -1.0,
     };
 
-    // let v = &(&camera.projection_matrix(&screen) * &camera.view_matrix()).inverse() * ndc;
-    let v = &(&camera.projection_matrix(&screen) * view_matrix).inverse() * ndc;
+    let p = &camera.projection_matrix(&screen).transpose().inverse() * ndc;
+    let ndc = Vector3::new(p.x, p.y, -1.0);
+
+    let v = &view_matrix.inverse() * ndc;
 
     Ray::point_dir(camera.transform.position(), v)
 }
